@@ -4,6 +4,9 @@
 // ============================================================
 declare(strict_types=1);
 
+require_once __DIR__ . '/auth.php';
+session_start_secure();
+
 $is_logged_in = !empty($_SESSION['user_id']);
 ?>
 

@@ -399,8 +399,6 @@ require_once __DIR__ . '/includes/header.php';
                         <?= csrf_field() ?>
                         <input type="hidden" name="action"     value="toggle_task">
                         <input type="hidden" name="task_id"    value="<?= (int)$task['id'] ?>">
-                        <input type="hidden" name="patient_id" value="<?= $patient_id ?>">
-                        <input type="hidden" name="today"      value="<?= e($today) ?>">
                         <input type="hidden" name="is_done"    value="<?= $is_done ? '1' : '0' ?>">
                         <button type="submit"
                                 class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all
