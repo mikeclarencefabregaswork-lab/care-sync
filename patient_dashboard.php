@@ -8,17 +8,12 @@ declare(strict_types=1);
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/includes/auth.php';
 
-session_start_secure();
 require_role('patient');
 
 $db         = get_db();
 $patient_id = current_user_id();
 $today      = date('Y-m-d');
 
-// ── Flash messages ───────────────────────────────────────────
-$flash_success = $_SESSION['flash_success'] ?? '';
-$flash_error   = $_SESSION['flash_error']   ?? '';
-unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 
 // ── Patient profile ──────────────────────────────────────────
 $profile_stmt = $db->prepare(
@@ -88,51 +83,28 @@ if ($care_plan) {
     }
 }
 
-// ── Helpers ──────────────────────────────────────────────────
-$severity_badge = [
-    'mild'     => 'bg-yellow-100 text-yellow-700',
-    'moderate' => 'bg-orange-100 text-orange-700',
-    'severe'   => 'bg-red-100   text-red-700',
-];
-$status_badge = [
-    'active'   => 'bg-amber-100  text-amber-700',
-    'chronic'  => 'bg-red-100    text-red-700',
-    'resolved' => 'bg-emerald-100 text-emerald-700',
-];
-$task_type_icons = [
-    'medication' => '💊', 'exercise' => '🏃', 'diet' => '🥗',
-    'lifestyle'  => '🌿', 'other'    => '📋',
-];
+require_once __DIR__ . '/includes/ui.php';
 
+// ── Helpers ──────────────────────────────────────────────────
 $completed_count = count($completions);
 $total_tasks     = count($tasks);
 $progress_pct    = $total_tasks > 0 ? round(($completed_count / $total_tasks) * 100) : 0;
 
-$age = ($profile['date_of_birth'] ?? null)
-    ? (new DateTime($profile['date_of_birth']))->diff(new DateTime())->y
-    : null;
+$age = null;
+if (!empty($profile['date_of_birth'])) {
+    try {
+        $birth = new DateTime($profile['date_of_birth']);
+        $age = $birth->diff(new DateTime())->y;
+    } catch (Throwable $t) {
+        $age = null;
+    }
+}
 
 $page_title = 'My Health Dashboard';
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<!-- ── Flash alerts ─────────────────────────────────────────── -->
-<?php if ($flash_success): ?>
-    <div class="alert mb-5 flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm rounded-xl px-4 py-3">
-        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-        </svg>
-        <?= e($flash_success) ?>
-    </div>
-<?php endif; ?>
-<?php if ($flash_error): ?>
-    <div class="alert mb-5 flex items-center gap-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">
-        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-        </svg>
-        <?= e($flash_error) ?>
-    </div>
-<?php endif; ?>
+<?php require_once __DIR__ . '/includes/flash.php'; ?>
 
 <!-- ── Welcome banner ───────────────────────────────────────── -->
 <div class="bg-gradient-to-r from-brand-600 to-brand-700 rounded-2xl p-6 mb-6 text-white relative overflow-hidden">
@@ -381,6 +353,9 @@ require_once __DIR__ . '/includes/header.php';
             </div>
 
             <div class="p-4 space-y-2.5" id="checklist">
+                <p class="text-xs text-slate-500 mb-1">
+                    Tap the checkbox to mark tasks as complete for today.
+                </p>
                 <?php foreach ($tasks as $task):
                     $is_done = isset($completions[$task['id']]);
                     $type_color = [
@@ -391,7 +366,7 @@ require_once __DIR__ . '/includes/header.php';
                         'other'      => 'border-slate-200 bg-slate-50',
                     ][$task['task_type']] ?? 'border-slate-200 bg-slate-50';
                 ?>
-                <div class="task-item flex items-start gap-3 p-3.5 rounded-xl border <?= $type_color ?> <?= $is_done ? 'opacity-60' : '' ?>"
+                <div class="task-item flex items-start gap-3 p-3.5 rounded-xl border <?= $type_color ?> <?= $is_done ? 'opacity-85 bg-opacity-80' : '' ?>"
                      data-task-id="<?= (int)$task['id'] ?>">
 
                     <!-- Checkbox form -->
@@ -401,6 +376,8 @@ require_once __DIR__ . '/includes/header.php';
                         <input type="hidden" name="task_id"    value="<?= (int)$task['id'] ?>">
                         <input type="hidden" name="is_done"    value="<?= $is_done ? '1' : '0' ?>">
                         <button type="submit"
+                                aria-label="<?= $is_done ? 'Mark task as not complete' : 'Mark task as complete' ?>"
+                                title="<?= $is_done ? 'Mark task as not complete' : 'Mark task as complete' ?>"
                                 class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all
                                        <?= $is_done
                                            ? 'bg-emerald-500 border-emerald-500 text-white'

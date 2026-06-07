@@ -9,7 +9,6 @@ declare(strict_types=1);
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/includes/auth.php';
 
-session_start_secure();
 require_role('doctor');
 
 $db        = get_db();
@@ -131,23 +130,7 @@ require_once __DIR__ . '/includes/header.php';
     <span class="text-slate-600 font-500"><?= e($patient['full_name']) ?></span>
 </nav>
 
-<!-- ── Flash alerts ─────────────────────────────────────────── -->
-<?php if ($flash_success): ?>
-    <div class="alert mb-5 flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm rounded-xl px-4 py-3">
-        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-        </svg>
-        <?= e($flash_success) ?>
-    </div>
-<?php endif; ?>
-<?php if ($flash_error): ?>
-    <div class="alert mb-5 flex items-center gap-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">
-        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-        </svg>
-        <?= e($flash_error) ?>
-    </div>
-<?php endif; ?>
+<?php require_once __DIR__ . '/includes/flash.php'; ?>
 
 <!-- ── Patient hero card ─────────────────────────────────────── -->
 <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 mb-6">
@@ -394,6 +377,8 @@ require_once __DIR__ . '/includes/header.php';
                 <div>
                     <label class="block text-xs font-500 text-slate-500 mb-1">Blood Pressure</label>
                     <input type="text" name="blood_pressure" placeholder="120/80"
+                           pattern="^\d{2,3}\/\d{2,3}$"
+                           inputmode="numeric"
                            class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 bg-slate-50
                                   focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
                 </div>
@@ -608,6 +593,8 @@ require_once __DIR__ . '/includes/header.php';
                 <div class="flex items-center justify-between mb-2">
                     <label class="text-xs font-600 text-slate-500 uppercase tracking-wider">Daily Tasks / Checklist Items</label>
                     <button type="button" id="add-task-btn"
+                            aria-label="Add a new daily task"
+                            title="Add a new daily task"
                             class="inline-flex items-center gap-1 text-xs text-brand-600 hover:text-brand-700 font-600">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
@@ -633,29 +620,33 @@ require_once __DIR__ . '/includes/header.php';
                                     </option>
                                 <?php endforeach; ?>
                             </select>
-                            <input type="text" name="tasks[<?= $i ?>][description]" required
+                            <input type="text" name="tasks[<?= $i ?>][description]" required maxlength="300"
                                    value="<?= e($task['description'] ?? '') ?>"
                                    placeholder="Task description *"
                                    class="flex-1 px-2 py-1.5 text-xs rounded-lg border border-slate-200 bg-white
                                           focus:outline-none focus:ring-2 focus:ring-brand-500">
-                            <button type="button" class="remove-task-btn text-slate-300 hover:text-red-400 transition flex-shrink-0">
+                            <button type="button"
+                                    class="remove-task-btn text-slate-300 hover:text-red-400 transition flex-shrink-0"
+                                    aria-label="Remove this task"
+                                    title="Remove this task">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                                 </svg>
                             </button>
                         </div>
+
                         <div class="grid grid-cols-3 gap-2">
-                            <input type="text" name="tasks[<?= $i ?>][medication_name]"
+                            <input type="text" name="tasks[<?= $i ?>][medication_name]" maxlength="150"
                                    value="<?= e($task['medication_name'] ?? '') ?>"
                                    placeholder="Drug name"
                                    class="px-2 py-1.5 text-xs rounded-lg border border-slate-200 bg-white
                                           focus:outline-none focus:ring-2 focus:ring-brand-500">
-                            <input type="text" name="tasks[<?= $i ?>][dosage]"
+                            <input type="text" name="tasks[<?= $i ?>][dosage]" maxlength="100"
                                    value="<?= e($task['dosage'] ?? '') ?>"
                                    placeholder="Dosage"
                                    class="px-2 py-1.5 text-xs rounded-lg border border-slate-200 bg-white
                                           focus:outline-none focus:ring-2 focus:ring-brand-500">
-                            <input type="text" name="tasks[<?= $i ?>][frequency]"
+                            <input type="text" name="tasks[<?= $i ?>][frequency]" maxlength="100"
                                    value="<?= e($task['frequency'] ?? '') ?>"
                                    placeholder="Frequency"
                                    class="px-2 py-1.5 text-xs rounded-lg border border-slate-200 bg-white
@@ -698,22 +689,25 @@ require_once __DIR__ . '/includes/header.php';
                                focus:outline-none focus:ring-2 focus:ring-brand-500">
                     ${options}
                 </select>
-                <input type="text" name="tasks[${index}][description]" required
+                <input type="text" name="tasks[${index}][description]" required maxlength="300"
                        placeholder="Task description *"
                        class="flex-1 px-2 py-1.5 text-xs rounded-lg border border-slate-200 bg-white
                               focus:outline-none focus:ring-2 focus:ring-brand-500">
-                <button type="button" class="remove-task-btn text-slate-300 hover:text-red-400 transition flex-shrink-0">
+                <button type="button"
+                        class="remove-task-btn text-slate-300 hover:text-red-400 transition flex-shrink-0"
+                        aria-label="Remove this task"
+                        title="Remove this task">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </button>
             </div>
             <div class="grid grid-cols-3 gap-2">
-                <input type="text" name="tasks[${index}][medication_name]" placeholder="Drug name"
+                <input type="text" name="tasks[${index}][medication_name]" maxlength="150" placeholder="Drug name"
                        class="px-2 py-1.5 text-xs rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
-                <input type="text" name="tasks[${index}][dosage]" placeholder="Dosage"
+                <input type="text" name="tasks[${index}][dosage]" maxlength="100" placeholder="Dosage"
                        class="px-2 py-1.5 text-xs rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
-                <input type="text" name="tasks[${index}][frequency]" placeholder="Frequency"
+                <input type="text" name="tasks[${index}][frequency]" maxlength="100" placeholder="Frequency"
                        class="px-2 py-1.5 text-xs rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500">
             </div>
         </div>`;
