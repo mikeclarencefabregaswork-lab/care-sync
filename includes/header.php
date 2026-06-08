@@ -5,16 +5,13 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/auth.php';
-session_start_secure();
-
 if (!isset($page_title)) {
     $page_title = 'EHR System';
 }
 
 $is_logged_in  = !empty($_SESSION['user_id']);
-$user_role     = $is_logged_in ? current_user_role() : '';
-$user_name     = $is_logged_in ? current_user_name() : '';
+$user_role     = current_user_role();
+$user_name     = current_user_name();
 $current_page  = basename($_SERVER['PHP_SELF']);
 ?>
 <!DOCTYPE html>

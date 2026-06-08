@@ -8,6 +8,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/includes/auth.php';
 
+session_start_secure();
 require_role('doctor');
 
 $db        = get_db();

@@ -146,4 +146,3 @@ task_completions    → daily patient check-offs (unique per task+date)
 - [ ] Restrict `register.php` to invite-only or admin-approved flows
 - [ ] Add audit logging table for all clinical data changes
 - [ ] Consider adding soft-delete instead of hard-delete for medical records
-# care-sync
