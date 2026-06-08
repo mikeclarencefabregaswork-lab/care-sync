@@ -606,7 +606,7 @@ require_once __DIR__ . '/includes/header.php';
             <!-- ── Dynamic Task Builder ─────────────────── -->
             <div>
                 <div class="flex items-center justify-between mb-2">
-                    <label class="text-xs font-600 text-slate-500 uppercase tracking-wider">Daily Tasks / Checklist Items</label>
+                    <label class="text-xs font-600 text-slate-700 uppercase tracking-wider">Daily Tasks / Checklist Items</label>
                     <button type="button" id="add-task-btn"
                             class="inline-flex items-center gap-1 text-xs text-brand-600 hover:text-brand-700 font-600">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -638,7 +638,7 @@ require_once __DIR__ . '/includes/header.php';
                                    placeholder="Task description *"
                                    class="flex-1 px-2 py-1.5 text-xs rounded-lg border border-slate-200 bg-white
                                           focus:outline-none focus:ring-2 focus:ring-brand-500">
-                            <button type="button" class="remove-task-btn text-slate-300 hover:text-red-400 transition flex-shrink-0">
+                            <button type="button" class="remove-task-btn text-slate-300 hover:text-red-400 transition flex-shrink-0" aria-label="Remove task">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                                 </svg>
@@ -702,7 +702,7 @@ require_once __DIR__ . '/includes/header.php';
                        placeholder="Task description *"
                        class="flex-1 px-2 py-1.5 text-xs rounded-lg border border-slate-200 bg-white
                               focus:outline-none focus:ring-2 focus:ring-brand-500">
-                <button type="button" class="remove-task-btn text-slate-300 hover:text-red-400 transition flex-shrink-0">
+                <button type="button" class="remove-task-btn text-slate-300 hover:text-red-400 transition flex-shrink-0" aria-label="Remove task">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                     </svg>

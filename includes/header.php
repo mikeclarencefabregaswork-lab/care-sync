@@ -86,6 +86,23 @@ $current_page  = basename($_SERVER['PHP_SELF']);
             flex-shrink: 0;
         }
 
+        /* ── Layout helpers ── */
+        /* desktop: fixed sidebar + main offset */
+        .app-main { margin-left: 256px; flex: 1; display: flex; flex-direction: column; min-width: 0; }
+        /* mobile: hide sidebar off-canvas; remove main offset */
+        .app-sidebar { transition: transform 0.2s ease; }
+        .app-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.35); z-index: 20; display: none; }
+
+        @media (max-width: 768px) {
+            .app-main { margin-left: 0; }
+            .app-sidebar {
+                transform: translateX(-100%);
+                box-shadow: 0 10px 30px rgba(0,0,0,.15);
+            }
+            .app-sidebar.is-open { transform: translateX(0); }
+            .app-overlay.is-open { display: block; }
+        }
+
         /* ── Scrollbar ── */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
@@ -108,8 +125,45 @@ $current_page  = basename($_SERVER['PHP_SELF']);
 ═══════════════════════════════════════════════════════════ -->
 <div class="min-h-screen flex">
 
+    <!-- Mobile overlay -->
+    <div id="app-overlay" class="app-overlay"></div>
+
+    <!-- Mobile sidebar toggle script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const btn = document.getElementById('app-menu-btn');
+            const sidebar = document.querySelector('.app-sidebar');
+            const overlay = document.getElementById('app-overlay');
+
+            if (!btn || !sidebar || !overlay) return;
+
+            function openSidebar() {
+                sidebar.classList.add('is-open');
+                overlay.classList.add('is-open');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeSidebar() {
+                sidebar.classList.remove('is-open');
+                overlay.classList.remove('is-open');
+                document.body.style.overflow = '';
+            }
+
+            btn.addEventListener('click', function () {
+                if (sidebar.classList.contains('is-open')) closeSidebar();
+                else openSidebar();
+            });
+
+            overlay.addEventListener('click', closeSidebar);
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') closeSidebar();
+            });
+        });
+    </script>
+
     <!-- ── Sidebar (fixed, 256 px wide) ──────────────────── -->
-    <aside style="width:256px;flex-shrink:0;" class="bg-white border-r border-slate-100 flex flex-col shadow-sm fixed inset-y-0 left-0 z-30 overflow-hidden">
+    <aside style="width:256px;flex-shrink:0;" class="app-sidebar bg-white border-r border-slate-100 flex flex-col shadow-sm fixed inset-y-0 left-0 z-30 overflow-hidden">
 
         <!-- Logo row -->
         <div style="height:64px;" class="flex items-center px-5 border-b border-slate-100 flex-shrink-0">
@@ -223,16 +277,29 @@ $current_page  = basename($_SERVER['PHP_SELF']);
     </aside>
 
     <!-- ── Main content wrapper (offset by sidebar width) ─── -->
-    <div style="margin-left:256px;flex:1;display:flex;flex-direction:column;min-width:0;">
+    <div class="app-main">
 
         <!-- Top bar -->
         <header style="height:64px;background:white;border-bottom:1px solid #f1f5f9;
                         display:flex;align-items:center;justify-content:space-between;
                         padding:0 24px;position:sticky;top:0;z-index:20;
                         box-shadow:0 1px 3px rgba(0,0,0,.04);">
-            <h1 style="font-size:0.9375rem;font-weight:600;color:#1e293b;margin:0;">
-                <?= e($page_title) ?>
-            </h1>
+            <div style="display:flex;align-items:center;gap:12px;min-width:0;">
+                <!-- Mobile menu button -->
+                <button type="button"
+                        id="app-menu-btn"
+                        aria-label="Open menu"
+                        class="md:hidden inline-flex items-center justify-center"
+                        style="width:36px;height:36px;border-radius:10px;background:#eff6ff;color:#2563eb;border:1px solid #dbeafe;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+
+                <h1 style="font-size:0.9375rem;font-weight:600;color:#1e293b;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                    <?= e($page_title) ?>
+                </h1>
+            </div>
             <div style="display:flex;align-items:center;gap:12px;">
                 <span style="font-size:0.7rem;color:#94a3b8;font-family:'DM Mono',monospace;">
                     <?= date('D, d M Y') ?>
@@ -252,7 +319,7 @@ $current_page  = basename($_SERVER['PHP_SELF']);
 <?php else: ?>
 <!-- ═══════════════════════════════════════════════════════
      UNAUTHENTICATED LAYOUT — centred card on gradient bg
-═══════════════════════════════════════════════════════════ -->
+═══════════════════════════════════════════════════════════════════ -->
 <div class="min-h-screen flex items-center justify-center p-4"
      style="background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 50%,#0f172a 100%);">
 <?php endif; ?>
