@@ -12,7 +12,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/config/db.php';
-require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/includes/auth.php'; // ensure csrf_verify is loaded
 
 session_start_secure();
 
@@ -380,5 +380,11 @@ if ($action === 'toggle_task') {
     redirect_with_flash($redirect, 'success', $is_done ? 'Task unmarked.' : 'Task marked as complete! ✅');
 }
 
-// ── Unknown action fallback ──────────────────────────────────
-redirect_with_flash('index.php', 'error', 'Unknown action requested.');
+/**
+ * ── Unknown action fallback ──────────────────────────────────
+ * Redirect to a safe place based on role to avoid always bouncing to login.
+ */
+$role = $_SESSION['user_role'] ?? '';
+$dest = ($role === 'doctor') ? 'doctor_dashboard.php' : 'patient_dashboard.php';
+redirect_with_flash($dest, 'error', 'Unknown action requested.');
+?>
