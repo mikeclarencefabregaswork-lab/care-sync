@@ -100,8 +100,11 @@ $status_badge = [
     'resolved' => 'bg-emerald-100 text-emerald-700',
 ];
 $task_type_icons = [
-    'medication' => '💊', 'exercise' => '🏃', 'diet' => '🥗',
-    'lifestyle'  => '🌿', 'other'    => '📋',
+    'medication' => '💊',
+    'exercise' => '🏃',
+    'diet' => '🥗',
+    'lifestyle'  => '🌿',
+    'other'    => '📋',
 ];
 
 $completed_count = count($completions);
@@ -120,7 +123,7 @@ require_once __DIR__ . '/includes/header.php';
 <?php if ($flash_success): ?>
     <div class="alert mb-5 flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm rounded-xl px-4 py-3">
         <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
         </svg>
         <?= e($flash_success) ?>
     </div>
@@ -128,7 +131,7 @@ require_once __DIR__ . '/includes/header.php';
 <?php if ($flash_error): ?>
     <div class="alert mb-5 flex items-center gap-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">
         <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
         </svg>
         <?= e($flash_error) ?>
     </div>
@@ -145,20 +148,20 @@ require_once __DIR__ . '/includes/header.php';
         <p class="text-brand-100 text-sm">Today is <?= date('l, F j, Y') ?></p>
 
         <?php if ($care_plan && $total_tasks > 0): ?>
-        <div class="mt-4">
-            <div class="flex items-center justify-between mb-1.5">
-                <span class="text-xs text-brand-200 font-500">Today's Progress</span>
-                <span class="text-xs font-700"><?= $completed_count ?>/<?= $total_tasks ?> tasks</span>
+            <div class="mt-4">
+                <div class="flex items-center justify-between mb-1.5">
+                    <span class="text-xs text-brand-200 font-500">Today's Progress</span>
+                    <span class="text-xs font-700"><?= $completed_count ?>/<?= $total_tasks ?> tasks</span>
+                </div>
+                <div class="w-full bg-white/20 rounded-full h-2">
+                    <div class="bg-white rounded-full h-2 transition-all duration-700"
+                        style="width: <?= $progress_pct ?>%"></div>
+                </div>
+                <p class="text-xs text-brand-100 mt-1">
+                    <?= $progress_pct ?>% complete
+                    <?= $progress_pct === 100 ? '🎉 Outstanding!' : '' ?>
+                </p>
             </div>
-            <div class="w-full bg-white/20 rounded-full h-2">
-                <div class="bg-white rounded-full h-2 transition-all duration-700"
-                     style="width: <?= $progress_pct ?>%"></div>
-            </div>
-            <p class="text-xs text-brand-100 mt-1">
-                <?= $progress_pct ?>% complete
-                <?= $progress_pct === 100 ? '🎉 Outstanding!' : '' ?>
-            </p>
-        </div>
         <?php endif; ?>
     </div>
 </div>
@@ -199,264 +202,386 @@ require_once __DIR__ . '/includes/header.php';
 ══════════════════════════════════════════════════════════ -->
 <div class="grid grid-cols-1 xl:grid-cols-5 gap-6">
 
-<!-- ── Left: EHR summary (2/5) ──────────────────────────── -->
-<div class="xl:col-span-2 space-y-6">
+    <!-- ── Left: EHR summary (2/5) ──────────────────────────── -->
+    <div class="xl:col-span-2 space-y-6">
 
-    <!-- Latest Vitals -->
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div class="px-5 py-4 border-b border-slate-100">
-            <h3 class="font-600 text-slate-800 flex items-center gap-2">
-                <span class="text-base">❤️</span> Latest Vitals
-            </h3>
-            <?php if ($latest_vitals): ?>
-                <p class="text-xs text-slate-400 mt-0.5">
-                    Recorded <?= date('d M Y', strtotime($latest_vitals['recorded_at'])) ?>
-                </p>
+        <!-- Latest Vitals -->
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-100">
+                <h3 class="font-600 text-slate-800 flex items-center gap-2">
+                    <span class="text-base">❤️</span> Latest Vitals
+                </h3>
+                <?php if ($latest_vitals): ?>
+                    <p class="text-xs text-slate-400 mt-0.5">
+                        Recorded <?= date('d M Y', strtotime($latest_vitals['recorded_at'])) ?>
+                    </p>
+                <?php endif; ?>
+            </div>
+
+            <?php if (!$latest_vitals): ?>
+                <div class="py-10 text-center">
+                    <p class="text-3xl mb-2">🩺</p>
+                    <p class="text-sm text-slate-400">No vitals recorded yet.</p>
+                    <p class="text-xs text-slate-300 mt-1">Your doctor will add these at your next visit.</p>
+                </div>
+            <?php else: ?>
+                <div class="p-4 grid grid-cols-2 gap-2.5">
+                    <?php
+                    $vital_display = [
+                        ['icon' => '🫀', 'label' => 'Blood Pressure', 'value' => $latest_vitals['blood_pressure'],     'unit' => 'mmHg'],
+                        ['icon' => '💓', 'label' => 'Heart Rate',     'value' => $latest_vitals['heart_rate'],          'unit' => 'bpm'],
+                        ['icon' => '🌡️', 'label' => 'Temperature',    'value' => $latest_vitals['temperature'],         'unit' => '°C'],
+                        ['icon' => '⚖️', 'label' => 'Weight',         'value' => $latest_vitals['weight_kg'],           'unit' => 'kg'],
+                        ['icon' => '📏', 'label' => 'Height',         'value' => $latest_vitals['height_cm'],           'unit' => 'cm'],
+                        ['icon' => '🫁', 'label' => 'SpO₂',          'value' => $latest_vitals['oxygen_saturation'],   'unit' => '%'],
+                    ];
+                    foreach ($vital_display as $vd): ?>
+                        <div class="bg-slate-50 rounded-xl p-3 flex items-center gap-2.5">
+                            <span class="text-xl flex-shrink-0"><?= $vd['icon'] ?></span>
+                            <div class="min-w-0">
+                                <p class="text-xs text-slate-400 truncate"><?= $vd['label'] ?></p>
+                                <p class="font-700 text-slate-800 text-sm">
+                                    <?= $vd['value'] !== null ? e((string)$vd['value']) : '—' ?>
+                                    <span class="text-xs font-400 text-slate-400"><?= $vd['unit'] ?></span>
+                                </p>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <?php if ($latest_vitals['notes']): ?>
+                    <div class="px-5 pb-4">
+                        <p class="text-xs text-slate-400 font-500 uppercase tracking-wider mb-1">Doctor's Note</p>
+                        <p class="text-xs text-slate-600 italic leading-relaxed bg-slate-50 rounded-xl px-3 py-2">
+                            "<?= e($latest_vitals['notes']) ?>"
+                        </p>
+                    </div>
+                <?php endif; ?>
             <?php endif; ?>
         </div>
 
-        <?php if (!$latest_vitals): ?>
-            <div class="py-10 text-center">
-                <p class="text-3xl mb-2">🩺</p>
-                <p class="text-sm text-slate-400">No vitals recorded yet.</p>
-                <p class="text-xs text-slate-300 mt-1">Your doctor will add these at your next visit.</p>
+        <!-- Allergies -->
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-100">
+                <h3 class="font-600 text-slate-800 flex items-center gap-2">
+                    <span class="text-base">⚠️</span> My Allergies
+                </h3>
+            </div>
+            <?php if (empty($allergies)): ?>
+                <div class="py-8 text-center">
+                    <p class="text-sm text-slate-400">No known allergies on record.</p>
+                </div>
+            <?php else: ?>
+                <div class="p-4 space-y-2">
+                    <?php foreach ($allergies as $al): ?>
+                        <div class="flex items-center justify-between p-3 rounded-xl <?= $severity_badge[$al['severity']] ?? 'bg-slate-100 text-slate-600' ?>">
+                            <div>
+                                <p class="font-600 text-sm"><?= e($al['allergen']) ?></p>
+                                <?php if ($al['reaction']): ?>
+                                    <p class="text-xs opacity-80 mt-0.5"><?= e($al['reaction']) ?></p>
+                                <?php endif; ?>
+                            </div>
+                            <span class="text-xs font-700 uppercase flex-shrink-0 ml-2"><?= e($al['severity']) ?></span>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+
+        <!-- Medical History -->
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-100">
+                <h3 class="font-600 text-slate-800 flex items-center gap-2">
+                    <span class="text-base">🩺</span> Medical History
+                </h3>
+            </div>
+            <?php if (empty($diagnoses)): ?>
+                <div class="py-8 text-center">
+                    <p class="text-sm text-slate-400">No diagnoses recorded.</p>
+                </div>
+            <?php else: ?>
+                <div class="divide-y divide-slate-50">
+                    <?php foreach ($diagnoses as $diag): ?>
+                        <div class="px-5 py-3.5 flex items-start justify-between gap-3">
+                            <div>
+                                <p class="text-sm font-600 text-slate-800"><?= e($diag['title']) ?></p>
+                                <?php if ($diag['icd_code']): ?>
+                                    <span class="font-mono text-xs text-slate-400"><?= e($diag['icd_code']) ?></span>
+                                <?php endif; ?>
+                                <?php if ($diag['diagnosed_on']): ?>
+                                    <p class="text-xs text-slate-400 mt-0.5">Since <?= date('M Y', strtotime($diag['diagnosed_on'])) ?></p>
+                                <?php endif; ?>
+                            </div>
+                            <span class="text-xs font-600 px-2 py-0.5 rounded-lg flex-shrink-0 <?= $status_badge[$diag['status']] ?? 'bg-slate-100 text-slate-500' ?>">
+                                <?= ucfirst(e($diag['status'])) ?>
+                            </span>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+
+    </div><!-- /left col -->
+
+    <!-- ── Profile edit (age/blood type/gender/contact) ───────── -->
+    <div class="xl:col-span-3 mb-6">
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between gap-3">
+                <div>
+                    <h3 class="font-600 text-slate-800 flex items-center gap-2">
+                        <span class="text-base">🧾</span>
+                        My Profile
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Update your personal medical details.</p>
+                </div>
+            </div>
+
+            <form method="POST" action="process_action.php" class="p-6 space-y-4">
+                <?= csrf_field() ?>
+                <input type="hidden" name="action" value="update_patient_profile">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-500 text-slate-500 mb-1">Date of Birth</label>
+                        <input type="date" name="date_of_birth"
+                            value="<?= e($profile['date_of_birth'] ?? '') ?>"
+                            class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 bg-slate-50
+                                  focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-500 text-slate-500 mb-1">Gender</label>
+                        <select name="gender"
+                            class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 bg-slate-50
+                                   focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+                            <?php
+                            $gender = $profile['gender'] ?? '';
+                            $gender_options = [
+                                '' => '— Not set —',
+                                'male' => 'male',
+                                'female' => 'female',
+                                'non-binary' => 'non-binary',
+                                'prefer_not_to_say' => 'prefer_not_to_say',
+                            ];
+                            foreach ($gender_options as $val => $label):
+                            ?>
+                                <option value="<?= e($val) ?>" <?= ($gender === $val || ($val === '' && !$gender)) ? 'selected' : '' ?>>
+                                    <?= e($label) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-500 text-slate-500 mb-1">Blood Type</label>
+                        <select name="blood_type"
+                            class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 bg-slate-50
+                                   focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+                            <?php
+                            $blood = $profile['blood_type'] ?? 'Unknown';
+                            $blood_options = [
+                                'Unknown' => 'Unknown',
+                                'A+' => 'A+',
+                                'A-' => 'A-',
+                                'B+' => 'B+',
+                                'B-' => 'B-',
+                                'AB+' => 'AB+',
+                                'AB-' => 'AB-',
+                                'O+' => 'O+',
+                                'O-' => 'O-',
+                            ];
+                            foreach ($blood_options as $val => $label):
+                            ?>
+                                <option value="<?= e($val) ?>" <?= ($blood === $val) ? 'selected' : '' ?>>
+                                    <?= e($label) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-500 text-slate-500 mb-1">Phone</label>
+                        <input type="text" name="phone"
+                            value="<?= e($profile['phone'] ?? '') ?>"
+                            placeholder="e.g. 555-0192"
+                            class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 bg-slate-50
+                                  focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-500 text-slate-500 mb-1">Address</label>
+                    <textarea name="address" rows="2"
+                        class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 bg-slate-50
+                                 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none"
+                        placeholder="Street, city, state, etc."><?= e($profile['address'] ?? '') ?></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-500 text-slate-500 mb-1">Emergency Contact Name</label>
+                        <input type="text" name="emergency_contact_name"
+                            value="<?= e($profile['emergency_contact_name'] ?? '') ?>"
+                            placeholder="Name"
+                            class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 bg-slate-50
+                                  focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-500 text-slate-500 mb-1">Emergency Contact Phone</label>
+                        <input type="text" name="emergency_contact_phone"
+                            value="<?= e($profile['emergency_contact_phone'] ?? '') ?>"
+                            placeholder="Phone"
+                            class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 bg-slate-50
+                                  focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+                    </div>
+                </div>
+
+                <button type="submit"
+                    class="w-full py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-sm font-600 rounded-xl transition">
+                    Save Profile
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ── Right: Care Plan (3/5) ──────────────────────────────── -->
+    <div class="xl:col-span-3">
+        <?php if (!$care_plan): ?>
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-10 text-center">
+                <div class="text-4xl mb-3">📋</div>
+                <h3 class="font-600 text-slate-700 mb-1">No Care Plan Yet</h3>
+                <p class="text-sm text-slate-400 max-w-xs mx-auto">
+                    Your doctor hasn't created a personalised care plan for you yet.
+                    It will appear here once assigned.
+                </p>
             </div>
         <?php else: ?>
-            <div class="p-4 grid grid-cols-2 gap-2.5">
-                <?php
-                $vital_display = [
-                    ['icon' => '🫀', 'label' => 'Blood Pressure', 'value' => $latest_vitals['blood_pressure'],     'unit' => 'mmHg'],
-                    ['icon' => '💓', 'label' => 'Heart Rate',     'value' => $latest_vitals['heart_rate'],          'unit' => 'bpm'],
-                    ['icon' => '🌡️', 'label' => 'Temperature',    'value' => $latest_vitals['temperature'],         'unit' => '°C'],
-                    ['icon' => '⚖️', 'label' => 'Weight',         'value' => $latest_vitals['weight_kg'],           'unit' => 'kg'],
-                    ['icon' => '📏', 'label' => 'Height',         'value' => $latest_vitals['height_cm'],           'unit' => 'cm'],
-                    ['icon' => '🫁', 'label' => 'SpO₂',          'value' => $latest_vitals['oxygen_saturation'],   'unit' => '%'],
-                ];
-                foreach ($vital_display as $vd): ?>
-                    <div class="bg-slate-50 rounded-xl p-3 flex items-center gap-2.5">
-                        <span class="text-xl flex-shrink-0"><?= $vd['icon'] ?></span>
-                        <div class="min-w-0">
-                            <p class="text-xs text-slate-400 truncate"><?= $vd['label'] ?></p>
-                            <p class="font-700 text-slate-800 text-sm">
-                                <?= $vd['value'] !== null ? e((string)$vd['value']) : '—' ?>
-                                <span class="text-xs font-400 text-slate-400"><?= $vd['unit'] ?></span>
-                            </p>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-            <?php if ($latest_vitals['notes']): ?>
-                <div class="px-5 pb-4">
-                    <p class="text-xs text-slate-400 font-500 uppercase tracking-wider mb-1">Doctor's Note</p>
-                    <p class="text-xs text-slate-600 italic leading-relaxed bg-slate-50 rounded-xl px-3 py-2">
-                        "<?= e($latest_vitals['notes']) ?>"
+            <!-- Care plan header -->
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden mb-4">
+                <div class="bg-gradient-to-r from-emerald-500 to-teal-500 px-6 py-5 text-white">
+                    <p class="text-xs font-600 uppercase tracking-widest text-emerald-100 mb-1">Personalised Care Plan</p>
+                    <h3 class="text-xl font-700"><?= e($care_plan['title']) ?></h3>
+                    <p class="text-emerald-100 text-xs mt-1">
+                        Assigned by <?= e($care_plan['doctor_name']) ?>
+                        &nbsp;·&nbsp;
+                        Review: <?= $care_plan['review_date'] ? date('d M Y', strtotime($care_plan['review_date'])) : 'Not set' ?>
                     </p>
                 </div>
-            <?php endif; ?>
-        <?php endif; ?>
-    </div>
 
-    <!-- Allergies -->
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div class="px-5 py-4 border-b border-slate-100">
-            <h3 class="font-600 text-slate-800 flex items-center gap-2">
-                <span class="text-base">⚠️</span> My Allergies
-            </h3>
-        </div>
-        <?php if (empty($allergies)): ?>
-            <div class="py-8 text-center">
-                <p class="text-sm text-slate-400">No known allergies on record.</p>
+                <?php if ($care_plan['goals']): ?>
+                    <div class="px-6 py-4 border-b border-slate-100">
+                        <p class="text-xs font-600 text-slate-400 uppercase tracking-wider mb-2">Goals</p>
+                        <p class="text-sm text-slate-600 leading-relaxed"><?= e($care_plan['goals']) ?></p>
+                    </div>
+                <?php endif; ?>
+
+                <div class="grid grid-cols-2 divide-x divide-slate-100">
+                    <div class="px-5 py-4">
+                        <p class="text-xs font-600 text-slate-400 uppercase tracking-wider mb-2">🥗 Diet</p>
+                        <p class="text-xs text-slate-600 leading-relaxed"><?= e($care_plan['diet_notes'] ?: 'Not specified') ?></p>
+                    </div>
+                    <div class="px-5 py-4">
+                        <p class="text-xs font-600 text-slate-400 uppercase tracking-wider mb-2">🏃 Exercise</p>
+                        <p class="text-xs text-slate-600 leading-relaxed"><?= e($care_plan['exercise_notes'] ?: 'Not specified') ?></p>
+                    </div>
+                </div>
             </div>
-        <?php else: ?>
-            <div class="p-4 space-y-2">
-                <?php foreach ($allergies as $al): ?>
-                    <div class="flex items-center justify-between p-3 rounded-xl <?= $severity_badge[$al['severity']] ?? 'bg-slate-100 text-slate-600' ?>">
-                        <div>
-                            <p class="font-600 text-sm"><?= e($al['allergen']) ?></p>
-                            <?php if ($al['reaction']): ?>
-                                <p class="text-xs opacity-80 mt-0.5"><?= e($al['reaction']) ?></p>
-                            <?php endif; ?>
+
+            <!-- Daily task checklist -->
+            <?php if (!empty($tasks)): ?>
+                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                    <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                        <h4 class="font-600 text-slate-800 flex items-center gap-2">
+                            <span class="text-base">✅</span>
+                            Today's Checklist
+                            <span class="text-xs text-slate-400 font-400"><?= date('d M Y') ?></span>
+                        </h4>
+                        <div class="flex items-center gap-2">
+                            <div class="w-24 bg-slate-100 rounded-full h-1.5">
+                                <div class="bg-emerald-500 rounded-full h-1.5 transition-all"
+                                    style="width: <?= $progress_pct ?>%"></div>
+                            </div>
+                            <span class="text-xs text-slate-500 font-600"><?= $progress_pct ?>%</span>
                         </div>
-                        <span class="text-xs font-700 uppercase flex-shrink-0 ml-2"><?= e($al['severity']) ?></span>
                     </div>
-                <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
-    </div>
 
-    <!-- Medical History -->
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div class="px-5 py-4 border-b border-slate-100">
-            <h3 class="font-600 text-slate-800 flex items-center gap-2">
-                <span class="text-base">🩺</span> Medical History
-            </h3>
-        </div>
-        <?php if (empty($diagnoses)): ?>
-            <div class="py-8 text-center">
-                <p class="text-sm text-slate-400">No diagnoses recorded.</p>
-            </div>
-        <?php else: ?>
-            <div class="divide-y divide-slate-50">
-                <?php foreach ($diagnoses as $diag): ?>
-                    <div class="px-5 py-3.5 flex items-start justify-between gap-3">
-                        <div>
-                            <p class="text-sm font-600 text-slate-800"><?= e($diag['title']) ?></p>
-                            <?php if ($diag['icd_code']): ?>
-                                <span class="font-mono text-xs text-slate-400"><?= e($diag['icd_code']) ?></span>
-                            <?php endif; ?>
-                            <?php if ($diag['diagnosed_on']): ?>
-                                <p class="text-xs text-slate-400 mt-0.5">Since <?= date('M Y', strtotime($diag['diagnosed_on'])) ?></p>
-                            <?php endif; ?>
-                        </div>
-                        <span class="text-xs font-600 px-2 py-0.5 rounded-lg flex-shrink-0 <?= $status_badge[$diag['status']] ?? 'bg-slate-100 text-slate-500' ?>">
-                            <?= ucfirst(e($diag['status'])) ?>
-                        </span>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
-    </div>
+                    <div class="p-4 space-y-2.5" id="checklist">
+                        <?php foreach ($tasks as $task):
+                            $is_done = isset($completions[$task['id']]);
+                            $type_color = [
+                                'medication' => 'border-rose-200 bg-rose-50',
+                                'exercise'   => 'border-blue-200 bg-blue-50',
+                                'diet'       => 'border-green-200 bg-green-50',
+                                'lifestyle'  => 'border-teal-200 bg-teal-50',
+                                'other'      => 'border-slate-200 bg-slate-50',
+                            ][$task['task_type']] ?? 'border-slate-200 bg-slate-50';
+                        ?>
+                            <div class="task-item flex items-start gap-3 p-3.5 rounded-xl border <?= $type_color ?> <?= $is_done ? 'opacity-60' : '' ?>"
+                                data-task-id="<?= (int)$task['id'] ?>">
 
-</div><!-- /left col -->
-
-<!-- ── Right: Care Plan (3/5) ──────────────────────────────── -->
-<div class="xl:col-span-3">
-    <?php if (!$care_plan): ?>
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-10 text-center">
-            <div class="text-4xl mb-3">📋</div>
-            <h3 class="font-600 text-slate-700 mb-1">No Care Plan Yet</h3>
-            <p class="text-sm text-slate-400 max-w-xs mx-auto">
-                Your doctor hasn't created a personalised care plan for you yet.
-                It will appear here once assigned.
-            </p>
-        </div>
-    <?php else: ?>
-        <!-- Care plan header -->
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden mb-4">
-            <div class="bg-gradient-to-r from-emerald-500 to-teal-500 px-6 py-5 text-white">
-                <p class="text-xs font-600 uppercase tracking-widest text-emerald-100 mb-1">Personalised Care Plan</p>
-                <h3 class="text-xl font-700"><?= e($care_plan['title']) ?></h3>
-                <p class="text-emerald-100 text-xs mt-1">
-                    Assigned by <?= e($care_plan['doctor_name']) ?>
-                    &nbsp;·&nbsp;
-                    Review: <?= $care_plan['review_date'] ? date('d M Y', strtotime($care_plan['review_date'])) : 'Not set' ?>
-                </p>
-            </div>
-
-            <?php if ($care_plan['goals']): ?>
-            <div class="px-6 py-4 border-b border-slate-100">
-                <p class="text-xs font-600 text-slate-400 uppercase tracking-wider mb-2">Goals</p>
-                <p class="text-sm text-slate-600 leading-relaxed"><?= e($care_plan['goals']) ?></p>
-            </div>
-            <?php endif; ?>
-
-            <div class="grid grid-cols-2 divide-x divide-slate-100">
-                <div class="px-5 py-4">
-                    <p class="text-xs font-600 text-slate-400 uppercase tracking-wider mb-2">🥗 Diet</p>
-                    <p class="text-xs text-slate-600 leading-relaxed"><?= e($care_plan['diet_notes'] ?: 'Not specified') ?></p>
-                </div>
-                <div class="px-5 py-4">
-                    <p class="text-xs font-600 text-slate-400 uppercase tracking-wider mb-2">🏃 Exercise</p>
-                    <p class="text-xs text-slate-600 leading-relaxed"><?= e($care_plan['exercise_notes'] ?: 'Not specified') ?></p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Daily task checklist -->
-        <?php if (!empty($tasks)): ?>
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-            <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-                <h4 class="font-600 text-slate-800 flex items-center gap-2">
-                    <span class="text-base">✅</span>
-                    Today's Checklist
-                    <span class="text-xs text-slate-400 font-400"><?= date('d M Y') ?></span>
-                </h4>
-                <div class="flex items-center gap-2">
-                    <div class="w-24 bg-slate-100 rounded-full h-1.5">
-                        <div class="bg-emerald-500 rounded-full h-1.5 transition-all"
-                             style="width: <?= $progress_pct ?>%"></div>
-                    </div>
-                    <span class="text-xs text-slate-500 font-600"><?= $progress_pct ?>%</span>
-                </div>
-            </div>
-
-            <div class="p-4 space-y-2.5" id="checklist">
-                <?php foreach ($tasks as $task):
-                    $is_done = isset($completions[$task['id']]);
-                    $type_color = [
-                        'medication' => 'border-rose-200 bg-rose-50',
-                        'exercise'   => 'border-blue-200 bg-blue-50',
-                        'diet'       => 'border-green-200 bg-green-50',
-                        'lifestyle'  => 'border-teal-200 bg-teal-50',
-                        'other'      => 'border-slate-200 bg-slate-50',
-                    ][$task['task_type']] ?? 'border-slate-200 bg-slate-50';
-                ?>
-                <div class="task-item flex items-start gap-3 p-3.5 rounded-xl border <?= $type_color ?> <?= $is_done ? 'opacity-60' : '' ?>"
-                     data-task-id="<?= (int)$task['id'] ?>">
-
-                    <!-- Checkbox form -->
-                    <form method="POST" action="process_action.php" class="flex-shrink-0 mt-0.5">
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="action"     value="toggle_task">
-                        <input type="hidden" name="task_id"    value="<?= (int)$task['id'] ?>">
-                        <input type="hidden" name="patient_id" value="<?= $patient_id ?>">
-                        <input type="hidden" name="today"      value="<?= e($today) ?>">
-                        <input type="hidden" name="is_done"    value="<?= $is_done ? '1' : '0' ?>">
-                        <button type="submit"
-                                class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all
+                                <!-- Checkbox form -->
+                                <form method="POST" action="process_action.php" class="flex-shrink-0 mt-0.5">
+                                    <?= csrf_field() ?>
+                                    <input type="hidden" name="action" value="toggle_task">
+                                    <input type="hidden" name="task_id" value="<?= (int)$task['id'] ?>">
+                                    <input type="hidden" name="patient_id" value="<?= $patient_id ?>">
+                                    <input type="hidden" name="today" value="<?= e($today) ?>">
+                                    <input type="hidden" name="is_done" value="<?= $is_done ? '1' : '0' ?>">
+                                    <button type="submit"
+                                        class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all
                                        <?= $is_done
-                                           ? 'bg-emerald-500 border-emerald-500 text-white'
-                                           : 'border-slate-300 hover:border-emerald-400 bg-white' ?>">
-                            <?php if ($is_done): ?>
-                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                                </svg>
-                            <?php endif; ?>
-                        </button>
-                    </form>
+                                            ? 'bg-emerald-500 border-emerald-500 text-white'
+                                            : 'border-slate-300 hover:border-emerald-400 bg-white' ?>">
+                                        <?php if ($is_done): ?>
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        <?php endif; ?>
+                                    </button>
+                                </form>
 
-                    <!-- Task details -->
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <span class="text-base"><?= $task_type_icons[$task['task_type']] ?? '📋' ?></span>
-                            <p class="text-sm font-600 text-slate-800 <?= $is_done ? 'line-through text-slate-400' : '' ?>">
-                                <?= e($task['description']) ?>
-                            </p>
-                        </div>
-                        <?php if ($task['medication_name']): ?>
-                            <p class="text-xs text-slate-500 mt-1">
-                                <strong><?= e($task['medication_name']) ?></strong>
-                                <?= $task['dosage'] ? '— ' . e($task['dosage']) : '' ?>
-                            </p>
-                        <?php endif; ?>
-                        <?php if ($task['frequency']): ?>
-                            <p class="text-xs text-brand-500 mt-0.5 flex items-center gap-1">
-                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                                <?= e($task['frequency']) ?>
-                            </p>
-                        <?php endif; ?>
+                                <!-- Task details -->
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <span class="text-base"><?= $task_type_icons[$task['task_type']] ?? '📋' ?></span>
+                                        <p class="text-sm font-600 text-slate-800 <?= $is_done ? 'line-through text-slate-400' : '' ?>">
+                                            <?= e($task['description']) ?>
+                                        </p>
+                                    </div>
+                                    <?php if ($task['medication_name']): ?>
+                                        <p class="text-xs text-slate-500 mt-1">
+                                            <strong><?= e($task['medication_name']) ?></strong>
+                                            <?= $task['dosage'] ? '— ' . e($task['dosage']) : '' ?>
+                                        </p>
+                                    <?php endif; ?>
+                                    <?php if ($task['frequency']): ?>
+                                        <p class="text-xs text-brand-500 mt-0.5 flex items-center gap-1">
+                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <?= e($task['frequency']) ?>
+                                        </p>
+                                    <?php endif; ?>
+                                </div>
+
+                                <!-- Done badge -->
+                                <?php if ($is_done): ?>
+                                    <span class="flex-shrink-0 text-xs text-emerald-600 font-600 bg-emerald-100 rounded-lg px-2 py-0.5">Done</span>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
                     </div>
 
-                    <!-- Done badge -->
-                    <?php if ($is_done): ?>
-                        <span class="flex-shrink-0 text-xs text-emerald-600 font-600 bg-emerald-100 rounded-lg px-2 py-0.5">Done</span>
+                    <?php if ($progress_pct === 100): ?>
+                        <div class="mx-4 mb-4 p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-center">
+                            <p class="text-emerald-700 font-700 text-sm">🎉 All tasks completed for today!</p>
+                            <p class="text-xs text-emerald-500 mt-1">Excellent work staying on track with your care plan.</p>
+                        </div>
                     <?php endif; ?>
                 </div>
-                <?php endforeach; ?>
-            </div>
-
-            <?php if ($progress_pct === 100): ?>
-                <div class="mx-4 mb-4 p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-center">
-                    <p class="text-emerald-700 font-700 text-sm">🎉 All tasks completed for today!</p>
-                    <p class="text-xs text-emerald-500 mt-1">Excellent work staying on track with your care plan.</p>
-                </div>
             <?php endif; ?>
-        </div>
         <?php endif; ?>
-    <?php endif; ?>
-</div><!-- /right col -->
+    </div><!-- /right col -->
 
 </div><!-- /main grid -->
 

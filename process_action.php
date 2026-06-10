@@ -277,9 +277,14 @@ if ($action === 'save_care_plan') {
                  WHERE patient_id = ?"
             );
             $upd->execute([
-                current_user_id(), $plan_title, $goals ?: null,
-                $diet_notes ?: null, $exercise_notes ?: null,
-                $clean_start, $clean_review, $patient_id,
+                current_user_id(),
+                $plan_title,
+                $goals ?: null,
+                $diet_notes ?: null,
+                $exercise_notes ?: null,
+                $clean_start,
+                $clean_review,
+                $patient_id,
             ]);
             $plan_id = $existing_plan['id'];
 
@@ -293,8 +298,14 @@ if ($action === 'save_care_plan') {
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
             );
             $ins->execute([
-                $patient_id, current_user_id(), $plan_title, $goals ?: null,
-                $diet_notes ?: null, $exercise_notes ?: null, $clean_start, $clean_review,
+                $patient_id,
+                current_user_id(),
+                $plan_title,
+                $goals ?: null,
+                $diet_notes ?: null,
+                $exercise_notes ?: null,
+                $clean_start,
+                $clean_review,
             ]);
             $plan_id = (int) $db->lastInsertId();
         }
@@ -322,12 +333,131 @@ if ($action === 'save_care_plan') {
         $db->commit();
         $verb = $existing_plan ? 'updated' : 'created';
         redirect_with_flash($redirect, 'success', "Care plan {$verb} successfully with " . count($clean_tasks) . " task(s).");
-
     } catch (PDOException $e) {
         $db->rollBack();
         error_log('save_care_plan error: ' . $e->getMessage());
         redirect_with_flash($redirect, 'error', 'Failed to save care plan due to a server error. Please try again.');
     }
+}
+
+/**
+ * ════════════════════════════════════════════════════════════
+ * ACTION: update_patient_profile  (Patient only)
+ * Updates patient profile fields stored in patient_profiles.
+ * ───────────────────────────────────────────────────────────
+ * Allowed fields:
+ *  - date_of_birth (DATE or empty)
+ *  - gender (ENUM values or empty)
+ *  - blood_type (ENUM values or empty -> Unknown)
+ *  - phone (VARCHAR 30)
+ *  - address (TEXT)
+ *  - emergency_contact_name (VARCHAR 120)
+ *  - emergency_contact_phone (VARCHAR 30)
+ * ════════════════════════════════════════════════════════════
+ */
+if ($action === 'update_patient_profile') {
+    require_role('patient');
+
+    $patient_id = current_user_id();
+    $redirect   = 'patient_dashboard.php';
+
+    // Validate date (allow empty)
+    $dob_raw = trim((string) ($_POST['date_of_birth'] ?? ''));
+    $dob = null;
+    if ($dob_raw !== '') {
+        $d = DateTime::createFromFormat('Y-m-d', $dob_raw);
+        if ($d && $d->format('Y-m-d') === $dob_raw) {
+            $dob = $dob_raw;
+        } else {
+            redirect_with_flash($redirect, 'error', 'Invalid date of birth.');
+        }
+    }
+
+    // Validate gender ENUM (allow empty)
+    $gender_raw = trim((string) ($_POST['gender'] ?? ''));
+    $allowed_genders = ['male', 'female', 'non-binary', 'prefer_not_to_say', ''];
+    if (!in_array($gender_raw, $allowed_genders, true)) {
+        $gender_raw = '';
+    }
+    $gender = $gender_raw !== '' ? $gender_raw : null;
+
+    // Validate blood_type ENUM (allow empty -> Unknown)
+    $blood_raw = trim((string) ($_POST['blood_type'] ?? ''));
+    $allowed_blood = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Unknown', ''];
+    if (!in_array($blood_raw, $allowed_blood, true)) {
+        $blood_raw = 'Unknown';
+    }
+    $blood_type = $blood_raw !== '' ? $blood_raw : 'Unknown';
+
+    // Validate phone fields (VARCHAR 30) — allow empty
+    $phone_raw = trim((string) ($_POST['phone'] ?? ''));
+    if (mb_strlen($phone_raw) > 30) {
+        redirect_with_flash($redirect, 'error', 'Phone is too long (max 30 characters).');
+    }
+    $phone = $phone_raw !== '' ? $phone_raw : null;
+
+    $ec_name_raw = trim((string) ($_POST['emergency_contact_name'] ?? ''));
+    if (mb_strlen($ec_name_raw) > 120) {
+        redirect_with_flash($redirect, 'error', 'Emergency contact name is too long (max 120 characters).');
+    }
+    $ec_name = $ec_name_raw !== '' ? $ec_name_raw : null;
+
+    $ec_phone_raw = trim((string) ($_POST['emergency_contact_phone'] ?? ''));
+    if (mb_strlen($ec_phone_raw) > 30) {
+        redirect_with_flash($redirect, 'error', 'Emergency contact phone is too long (max 30 characters).');
+    }
+    $ec_phone = $ec_phone_raw !== '' ? $ec_phone_raw : null;
+
+    // Address (TEXT) — allow empty
+    $address_raw = trim((string) ($_POST['address'] ?? ''));
+    // no strict max here; TEXT in MySQL is large. Keep it bounded defensively.
+    if (mb_strlen($address_raw) > 5000) {
+        redirect_with_flash($redirect, 'error', 'Address is too long.');
+    }
+    $address = $address_raw !== '' ? $address_raw : null;
+
+    // Ensure patient row exists; then update or insert.
+    $exists = $db->prepare("SELECT id FROM patient_profiles WHERE user_id = ? LIMIT 1");
+    $exists->execute([$patient_id]);
+    $row = $exists->fetch();
+
+    if ($row) {
+        $upd = $db->prepare(
+            "UPDATE patient_profiles
+             SET date_of_birth = ?, gender = ?, phone = ?, address = ?, blood_type = ?,
+                 emergency_contact_name = ?, emergency_contact_phone = ?
+             WHERE user_id = ?"
+        );
+        $upd->execute([
+            $dob,
+            $gender,
+            $phone,
+            $address,
+            $blood_type,
+            $ec_name,
+            $ec_phone,
+            $patient_id,
+        ]);
+    } else {
+        $ins = $db->prepare(
+            "INSERT INTO patient_profiles
+                (user_id, date_of_birth, gender, phone, address, blood_type,
+                 emergency_contact_name, emergency_contact_phone)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+        );
+        $ins->execute([
+            $patient_id,
+            $dob,
+            $gender,
+            $phone,
+            $address,
+            $blood_type,
+            $ec_name,
+            $ec_phone,
+        ]);
+    }
+
+    redirect_with_flash($redirect, 'success', 'Profile updated successfully.');
 }
 
 // ════════════════════════════════════════════════════════════
@@ -387,4 +517,3 @@ if ($action === 'toggle_task') {
 $role = $_SESSION['user_role'] ?? '';
 $dest = ($role === 'doctor') ? 'doctor_dashboard.php' : 'patient_dashboard.php';
 redirect_with_flash($dest, 'error', 'Unknown action requested.');
-?>
